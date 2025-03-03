@@ -10,7 +10,13 @@ const {
   deleteUser,
 } = require('../controllers/userController');
 
+const inquiryController = require('../controllers/ContactUsController');
 
+// ➤ Create a new inquiry
+router.post('/contact-us', inquiryController.createInquiry);
+
+// ➤ Get all inquiries
+router.get('/contact-us', inquiryController.getAllInquiries);
 
 // User Routes
 router.post('/create-user-tour-and-travel', createUser);
