@@ -2,33 +2,35 @@ const mongoose = require("mongoose");
 
 const userSchema = new mongoose.Schema(
   {
-    name: { type: String, },
-    dob: { type: Date,  },
-    gender: { type: String, enum: ["Male", "Female", "Other"],  },
-    fatherName: { type: String, },
-    motherName: { type: String, },
+    name: { type: String },
+    dob: { type: Date },
+    gender: { type: String, enum: ["Male", "Female", "Other"] },
+    fatherName: { type: String },
+    motherName: { type: String },
     spouseName: { type: String },
-    nationality: { type: String, },
+    nationality: { type: String },
     aadharNo: { type: String, unique: true },
+    phone: { type: String, required: true }, // Added phone number
+    email: { type: String, required: true, unique: true }, // Added email
     passportDetails: {
-      passportNo: { type: String,},
+      passportNo: { type: String },
       dateOfIssue: { type: Date },
       dateOfExpiry: { type: Date },
     },
     address: {
-      presentAddress: { type: String, },
-      city: { type: String,  },
-      state: { type: String,  },
-      pincode: { type: String, },
+      presentAddress: { type: String },
+      city: { type: String },
+      state: { type: String },
+      pincode: { type: String },
     },
     travelHistory: { type: [String] }, // Array for multiple travel records
     emergencyDetails: {
-      contactName: { type: String, },
-      relationship: { type: String,  },
-      contactNo: { type: String, },
-      address: { type: String,  },
+      contactName: { type: String },
+      relationship: { type: String },
+      contactNo: { type: String },
+      address: { type: String },
     },
-    declaration: { type: Boolean,  }, // Checkbox
+    declaration: { type: Boolean }, // Checkbox
   },
   { timestamps: true }
 );

@@ -12,6 +12,13 @@ const {
 
 const inquiryController = require('../controllers/ContactUsController');
 
+
+
+const { createOrder ,getPaymentStatus,getAllOrders} = require('../controllers/OrderController');
+router.get('/payment-status', getPaymentStatus);
+router.get('/all-orders', getAllOrders);
+
+router.post('/create-order', createOrder);
 // ➤ Create a new inquiry
 router.post('/contact-us', inquiryController.createInquiry);
 
