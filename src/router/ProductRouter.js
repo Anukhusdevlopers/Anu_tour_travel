@@ -16,6 +16,7 @@ const inquiryController = require('../controllers/ContactUsController');
 
 
 const { createOrder ,getPaymentStatus,getAllOrders,updateOrderStatus,rejectOrder} = require('../controllers/OrderController');
+const { createorder, verifyPayment } = require('../controllers/rozarpayController');
 router.post('/update-order-status/:orderId', updateOrderStatus);
 router.post('/reject-order/:orderId', rejectOrder);
 
@@ -38,5 +39,9 @@ router.delete('/users/:id', deleteUser);
 
 // Product Routes
 
+
+// rozarpay payments
+router.post('/createOrder',createorder);
+router.post('/verifyPayment',verifyPayment);
 
 module.exports = router;
