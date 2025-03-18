@@ -14,7 +14,11 @@ const inquiryController = require('../controllers/ContactUsController');
 
 
 
-const { createOrder ,getPaymentStatus,getAllOrders} = require('../controllers/OrderController');
+
+const { createOrder ,getPaymentStatus,getAllOrders,updateOrderStatus,rejectOrder} = require('../controllers/OrderController');
+router.post('/update-order-status/:orderId', updateOrderStatus);
+router.post('/reject-order/:orderId', rejectOrder);
+
 router.get('/payment-status', getPaymentStatus);
 router.get('/all-orders', getAllOrders);
 

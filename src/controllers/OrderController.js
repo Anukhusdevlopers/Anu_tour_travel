@@ -68,7 +68,54 @@ exports.createOrder = async (req, res) => {
   }
 };
 
+// Update Order Status
+exports.updateOrderStatus = async (req, res) => {
+  const { orderId } = req.params;
 
+  try {
+    // Check order existence and PENDING status
+    const order = await Order.findOne({ orderId });
+
+    if (!order) {
+      return res.status(404).json({ message: "Order not found" });
+    }
+
+    if (order.status !== "PENDING") {
+      return res.status(400).json({ message: "Order already processed", status: order.status });
+    }
+
+    // Update order status to APPROVED
+    order.status = "APPROVED";
+    await order.save();
+
+    res.status(200).json({ message: "Order APPROVED", status: "APPROVED" });
+  } catch (error) {
+    res.status(500).json({ message: "Server error", error });
+  }
+};
+// Reject Order
+exports.rejectOrder = async (req, res) => {
+  const { orderId } = req.params;
+
+  try {
+    const order = await Order.findOne({ orderId });
+
+    if (!order) {
+      return res.status(404).json({ message: "Order not found" });
+    }
+
+    if (order.status !== "PENDING") {
+      return res.status(400).json({ message: "Order already processed", status: order.status });
+    }
+
+    order.status = "REJECTED";
+    await order.save();
+
+    res.status(200).json({ message: "Order REJECTED", status: "REJECTED" });
+  } catch (error) {
+    res.status(500).json({ message: "Server error", error });
+  }
+};
 // ✅ Payment Status Check Controller
 exports.getPaymentStatus = async (req, res) => {
     const { orderId, sessionId } = req.query;
