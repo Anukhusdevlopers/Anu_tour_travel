@@ -1,6 +1,7 @@
 const crypto = require('crypto');
 const Razorpay = require('razorpay');// Adjust the path as needed
 const Order = require('../models/Order');
+const User = require('../models/User');
 
 const razorpay = new Razorpay({
   key_id: process.env.RAZORPAY_KEY_ID,
@@ -9,6 +10,7 @@ const razorpay = new Razorpay({
 
 // Create a new Razorpay order and store it in MongoDB using the Order model
 exports.createorder = async (req, res) => {
+  const {id} = req.body
   try {
     const options = {
       amount: 50000, // Amount in paise (₹500)
@@ -19,13 +21,17 @@ exports.createorder = async (req, res) => {
     // Create order on Razorpay
     const order = await razorpay.orders.create(options);
 
+     const user = await User.findById(id);
+        if (!user) {
+          return res.status(404).json({ error: 'User not found' });
+        }
     // Create and save an order document in MongoDB
     // We assume req.user is set by your authentication middleware
     const newOrder = new Order({
       orderId: order.id,
       amount: order.amount,
       currency: order.currency,
-      user: req.user._id, // Reference to the User model
+      user:user._id, // Reference to the User model
       status: order.status || 'PENDING', // Default status as PENDING
       paymentResponse: {}, // Initially empty until payment verification
     });
