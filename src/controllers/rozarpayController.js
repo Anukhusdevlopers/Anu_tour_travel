@@ -1,5 +1,5 @@
 const crypto = require('crypto');
-const Razorpay = require('razorpay');// Adjust the path as needed
+const Razorpay = require('razorpay');
 const Order = require('../models/Order');
 const User = require('../models/User');
 
@@ -8,32 +8,30 @@ const razorpay = new Razorpay({
   key_secret: process.env.RAZORPAY_KEY_SECRET,
 });
 
-// Create a new Razorpay order and store it in MongoDB using the Order model
-exports.createorder = async (req, res) => {
-  const {id} = req.body
+// ✅ Create Order
+exports.createorderByRozerpay = async (req, res) => {
+  const { id, amount } = req.body;
+
   try {
+    const user = await User.findById(id);
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
     const options = {
-      amount: 50000, // Amount in paise (₹500)
+      amount: parseInt(amount) * 100, // Convert amount to paise
       currency: "INR",
-      payment_capture: 1, // Auto capture the payment
     };
 
-    // Create order on Razorpay
     const order = await razorpay.orders.create(options);
 
-     const user = await User.findById(id);
-        if (!user) {
-          return res.status(404).json({ error: 'User not found' });
-        }
-    // Create and save an order document in MongoDB
-    // We assume req.user is set by your authentication middleware
     const newOrder = new Order({
       orderId: order.id,
       amount: order.amount,
       currency: order.currency,
-      user:user._id, // Reference to the User model
-      status: order.status || 'PENDING', // Default status as PENDING
-      paymentResponse: {}, // Initially empty until payment verification
+      user: user._id,
+      status: 'CREATED',
+      paymentResponse: {},
     });
     await newOrder.save();
 
@@ -44,27 +42,24 @@ exports.createorder = async (req, res) => {
   }
 };
 
-// Verify Razorpay payment signature and update the corresponding order in MongoDB
-exports.verifyPayment = async (req, res) => {
+// ✅ Verify Payment
+exports.verifyPaymentByRozerpay = async (req, res) => {
   try {
     const { razorpay_order_id, razorpay_payment_id, razorpay_signature } = req.body;
 
-    // Generate signature on the server side using HMAC with SHA256
     const generatedSignature = crypto
       .createHmac("sha256", process.env.RAZORPAY_KEY_SECRET)
       .update(`${razorpay_order_id}|${razorpay_payment_id}`)
       .digest("hex");
 
     if (generatedSignature === razorpay_signature) {
-      // Find the order by orderId
       const order = await Order.findOne({ orderId: razorpay_order_id });
       if (!order) {
         return res.status(404).json({ success: false, message: "Order not found" });
       }
 
-      // Update the order status and store the payment response details
-      order.status = "VERIFIED";
-      order.paymentResponse = req.body; // Save complete payment response for future reference
+      order.status = "PAID";
+      order.paymentResponse = req.body;
       await order.save();
 
       return res.json({ success: true, message: "Payment verified successfully" });
@@ -77,10 +72,9 @@ exports.verifyPayment = async (req, res) => {
   }
 };
 
-// Endpoint to retrieve all orders (transactions) from MongoDB
-exports.getAllTransaction = async (req, res) => {
+// ✅ Get All Transactions
+exports.getAllTransactionByRozerpay = async (req, res) => {
   try {
-    // Optionally, you can filter orders by a specific user: { user: req.user._id }
     const orders = await Order.find({});
     res.json(orders);
   } catch (error) {
