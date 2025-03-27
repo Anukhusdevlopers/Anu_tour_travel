@@ -30,7 +30,7 @@ exports.createorderByRozerpay = async (req, res) => {
       amount: order.amount,
       currency: order.currency,
       user: user._id,
-      status: 'CREATED',
+      status: 'PENDING',
       paymentResponse: {},
     });
     await newOrder.save();
